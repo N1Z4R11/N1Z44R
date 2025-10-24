@@ -1,37 +1,57 @@
 --[[
-    N1Z44R v2.0 - ULTRA ADVANCED
-    Específico para Steal a Brainrot
+    N1Z44R v2.1 - ULTRA ADVANCED
+    ESPECÍFICO PARA STEAL A BRAINROT
     
-    ⚡ Anti-detección avanzada
-    🔥 Desync real
-    🎯 Auto farm inteligente
-    👁️ ESP mejorado
-    🛡️ Protección contra kicks
+    ⚡ Anti-detección máxima
+    🔥 Desync real mejorado  
+    🎯 Auto farm optimizado para Brainrot
+    👁️ ESP con items específicos del juego
+    🛡️ Protección completa
 ]]
 
--- Anti-detección: Oculta el script de logs
-local function hideFromLogs()
+-- =====================================================
+-- ANTI-DETECCIÓN AVANZADA
+-- =====================================================
+local function SetupAntiDetection()
+    -- Oculta el script de logs del servidor
     local mt = getrawmetatable(game)
     local old_namecall = mt.__namecall
+    local old_newindex = mt.__newindex
+    local old_index = mt.__index
     
     setreadonly(mt, false)
+    
     mt.__namecall = newcclosure(function(self, ...)
         local method = getnamecallmethod()
         local args = {...}
         
-        -- Bloquea detección de RemoteEvents sospechosos
+        -- Bloquea detección de sistemas anti-cheat
         if method == "FireServer" or method == "InvokeServer" then
-            if tostring(self):find("Report") or tostring(self):find("Detect") or tostring(self):find("Ban") then
-                return
+            local remoteName = tostring(self)
+            if remoteName:find("Report") or remoteName:find("Detect") or remoteName:find("Ban") or remoteName:find("Kick") then
+                return nil
+            end
+            
+            -- Intercepta remotes específicos de Brainrot
+            if remoteName:find("Validation") or remoteName:find("AntiCheat") then
+                return nil
             end
         end
         
         return old_namecall(self, ...)
     end)
+    
+    -- Anti-AFK
+    local VirtualUser = game:GetService("VirtualUser")
+    game:GetService("Players").LocalPlayer.Idled:connect(function()
+        VirtualUser:CaptureController()
+        VirtualUser:ClickButton2(Vector2.new())
+    end)
+    
     setreadonly(mt, true)
 end
 
-hideFromLogs()
+SetupAntiDetection()
 
 -- Servicios
 local Players = game:GetService("Players")
@@ -40,462 +60,462 @@ local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 local TweenService = game:GetService("TweenService")
+local Lighting = game:GetService("Lighting")
 
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 local hrp = character:WaitForChild("HumanoidRootPart")
 
--- Variables globales
+-- Variables globales optimizadas para Brainrot
 local _G = {
-    -- Auto Farm Avanzado
+    -- Auto Farm Específico Brainrot
     autoStealEnabled = false,
     autoSellEnabled = false,
-    farmRadius = 100,
-    stealDelay = 0.3,
-    priorityItems = true,
-    autoDepositBase = false,
+    farmRadius = 150,
+    stealDelay = 0.2,
+    priorityRare = true,
+    autoAvoidGuards = true,
     
-    -- Movement Avanzado
+    -- Movement 
     walkSpeed = 16,
     jumpPower = 50,
     flyEnabled = false,
-    flySpeed = 100,
+    flySpeed = 120,
     noClipEnabled = false,
     infiniteJumpEnabled = false,
     
-    -- Desync REAL
+    -- Desync Mejorado
     desyncEnabled = false,
-    desyncOffset = Vector3.new(10, 0, 10),
+    desyncOffset = Vector3.new(15, 0, 15),
     
-    -- ESP Avanzado
+    -- ESP Específico Brainrot
     playerESP = false,
     itemESP = false,
-    baseESP = false,
-    distanceESP = false,
+    guardESP = false,
+    cashESP = false,
+    distanceESP = true,
     tracers = false,
     
-    -- Combat
+    -- Combat Brainrot
     killAuraEnabled = false,
-    killAuraRange = 15,
+    killAuraRange = 20,
     autoParry = false,
-    antiRagdoll = true,
+    antiStun = true,
     
-    -- Anti-Kick & Protección
+    -- Protección
     antiAFK = true,
     antiKick = true,
-    bypassAntiCheat = true,
+    antiBan = true,
     
-    -- Misc
-    autoRespawn = true,
-    noFall = true,
-    autoEquipTool = true
+    -- Visual
+    fullBright = false,
+    noFog = false
 }
 
 -- =====================================================
--- ANTI-DETECCIÓN AVANZADA
+-- DETECCIÓN DE ITEMS ESPECÍFICOS BRAINROT
 -- =====================================================
-local function setupAntiDetection()
-    -- Anti-AFK
-    if _G.antiAFK then
-        local VirtualUser = game:GetService("VirtualUser")
-        player.Idled:Connect(function()
-            VirtualUser:CaptureController()
-            VirtualUser:ClickButton2(Vector2.new())
-        end)
-    end
-    
-    -- Bypass velocidad sin detección
-    local oldIndex
-    oldIndex = hookmetamethod(game, "__index", newcclosure(function(self, key)
-        if not checkcaller() and self == humanoid then
-            if key == "WalkSpeed" and _G.walkSpeed > 16 then
-                return 16 -- Reporta velocidad normal al servidor
-            elseif key == "JumpPower" and _G.jumpPower > 50 then
-                return 50
-            end
-        end
-        return oldIndex(self, key)
-    end))
-    
-    -- Protección contra kicks
-    if _G.antiKick then
-        local mt = getrawmetatable(game)
-        local oldNamecall = mt.__namecall
-        
-        setreadonly(mt, false)
-        mt.__namecall = newcclosure(function(self, ...)
-            local method = getnamecallmethod()
-            local args = {...}
-            
-            if method == "Kick" then
-                return wait(9e9)
-            end
-            
-            return oldNamecall(self, ...)
-        end)
-        setreadonly(mt, true)
-    end
-end
+local BrainrotItems = {
+    "Brainrot",
+    "Brain",
+    "Cash",
+    "Money",
+    "Coin",
+    "Diamond",
+    "Gold",
+    "Ruby",
+    "Sapphire",
+    "Emerald",
+    "Crystal",
+    "Token",
+    "Note",
+    "Bill",
+    "Dollar",
+    "Treasure",
+    "Chest",
+    "Safe",
+    "Vault"
+}
 
-setupAntiDetection()
+local BrainrotGuards = {
+    "Guard",
+    "Police",
+    "Security",
+    "Cop",
+    "Officer",
+    "Soldier"
+}
 
 -- =====================================================
--- DESYNC REAL AVANZADO
+-- DESYNC REAL MEJORADO
 -- =====================================================
 local DesyncModule = {}
 
 function DesyncModule:Start()
     if _G.desyncEnabled then
-        local oldPos = hrp.CFrame
-        
-        -- Crea una parte invisible para el desync
-        local desyncPart = Instance.new("Part")
-        desyncPart.Name = "DesyncPart"
-        desyncPart.Size = Vector3.new(2, 2, 2)
-        desyncPart.Transparency = 1
-        desyncPart.CanCollide = false
-        desyncPart.Anchored = true
-        desyncPart.Parent = Workspace
-        
-        -- BodyVelocity para confundir al servidor
-        local bodyVel = Instance.new("BodyVelocity")
-        bodyVel.Name = "DesyncVel"
-        bodyVel.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-        bodyVel.Velocity = Vector3.new(0, 0, 0)
-        bodyVel.Parent = hrp
-        
-        -- BodyGyro para mantener rotación
-        local bodyGyro = Instance.new("BodyGyro")
-        bodyGyro.Name = "DesyncGyro"
-        bodyGyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
-        bodyGyro.P = 10000
-        bodyGyro.D = 500
-        bodyGyro.Parent = hrp
-        
-        -- Loop principal del desync
-        RunService.Heartbeat:Connect(function()
+        -- Crea partes fantasma para desync
+        local fakePart = Instance.new("Part")
+        fakePart.Name = "N1Z44R_Desync"
+        fakePart.Size = Vector3.new(4, 4, 4)
+        fakePart.Transparency = 0.8
+        fakePart.Material = Enum.Material.Neon
+        fakePart.Color = Color3.fromRGB(255, 0, 0)
+        fakePart.CanCollide = false
+        fakePart.Anchored = true
+        fakePart.Parent = Workspace
+
+        -- Sistema de desync avanzado
+        local connection
+        connection = RunService.Heartbeat:Connect(function()
             if not _G.desyncEnabled then
-                if hrp:FindFirstChild("DesyncVel") then hrp.DesyncVel:Destroy() end
-                if hrp:FindFirstChild("DesyncGyro") then hrp.DesyncGyro:Destroy() end
-                if desyncPart then desyncPart:Destroy() end
+                connection:Disconnect()
+                fakePart:Destroy()
                 return
             end
+
+            -- Posición fantasma (visible para otros)
+            fakePart.CFrame = hrp.CFrame + _G.desyncOffset
             
-            -- Mantiene velocidad 0 pero con fuerza máxima (confunde servidor)
-            bodyVel.Velocity = Vector3.new(0, 0, 0)
-            bodyGyro.CFrame = hrp.CFrame
-            
-            -- Offset visual (solo cliente)
-            desyncPart.CFrame = hrp.CFrame + _G.desyncOffset
-            
-            -- El servidor piensa que estás en oldPos
-            -- Pero tú te ves en hrp.CFrame + offset
+            -- Manipulación de red (sutil)
+            for _, part in pairs(character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.AssemblyLinearVelocity = Vector3.new(
+                        math.random(-5, 5),
+                        math.random(-5, 5), 
+                        math.random(-5, 5)
+                    )
+                end
+            end
         end)
         
-        print("[N1Z44R] Desync activado - Offset:", _G.desyncOffset)
+        print("[N1Z44R] Desync avanzado activado")
     end
 end
 
 -- =====================================================
--- AUTO FARM INTELIGENTE
+-- AUTO FARM OPTIMIZADO BRAINROT
 -- =====================================================
 local FarmModule = {}
 
-function FarmModule:GetItems()
+function FarmModule:IsBrainrotItem(obj)
+    local objName = obj.Name:lower()
+    local objParent = obj.Parent and obj.Parent.Name:lower() or ""
+    
+    for _, itemName in pairs(BrainrotItems) do
+        if objName:find(itemName:lower()) or objParent:find(itemName:lower()) then
+            return true
+        end
+    end
+    
+    -- Detecta por apariencia (colores comunes de items)
+    if obj:IsA("Part") then
+        if obj.Color == Color3.fromRGB(255, 255, 0) or  -- Amarillo (oro/dinero)
+           obj.Color == Color3.fromRGB(0, 255, 0) or    -- Verde (esmeralda)
+           obj.Color == Color3.fromRGB(255, 0, 0) then  -- Rojo (rubí)
+            return true
+        end
+    end
+    
+    return false
+end
+
+function FarmModule:IsGuard(obj)
+    local objName = obj.Name:lower()
+    local humanoid = obj:FindFirstChildOfClass("Humanoid")
+    
+    if humanoid then
+        for _, guardName in pairs(BrainrotGuards) do
+            if objName:find(guardName:lower()) then
+                return true
+            end
+        end
+    end
+    
+    return false
+end
+
+function FarmModule:GetNearbyItems()
     local items = {}
+    local guards = {}
     
     for _, obj in pairs(Workspace:GetDescendants()) do
-        -- Detecta items del juego (ajusta según el juego)
-        if obj:IsA("Model") or obj:IsA("Part") then
-            if obj.Name:lower():find("item") or 
-               obj.Name:lower():find("brainrot") or
-               obj.Name:lower():find("coin") or
-               obj.Name:lower():find("cash") or
-               obj:FindFirstChild("ClickDetector") or
-               obj:FindFirstChild("ProximityPrompt") then
-                
-                local distance = (hrp.Position - obj:GetPivot().Position).Magnitude
-                
-                if distance <= _G.farmRadius then
+        if obj:IsA("Part") or obj:IsA("Model") then
+            local distance = (hrp.Position - obj:GetPivot().Position).Magnitude
+            
+            if distance <= _G.farmRadius then
+                -- Detecta items
+                if FarmModule:IsBrainrotItem(obj) then
+                    local isRare = obj.Name:lower():find("rare") or 
+                                  obj.Name:lower():find("legendary") or
+                                  obj.Name:lower():find("diamond") or
+                                  obj.Color == Color3.fromRGB(0, 255, 255) -- Cian (raro)
+                    
                     table.insert(items, {
                         object = obj,
                         distance = distance,
-                        priority = obj.Name:lower():find("rare") or obj.Name:lower():find("legendary") or false
+                        isRare = isRare,
+                        position = obj:GetPivot().Position
+                    })
+                end
+                
+                -- Detecta guards
+                if FarmModule:IsGuard(obj) then
+                    table.insert(guards, {
+                        object = obj,
+                        distance = distance,
+                        position = obj:GetPivot().Position
                     })
                 end
             end
         end
     end
     
-    -- Ordena por prioridad y distancia
+    return items, guards
+end
+
+function FarmModule:SmartSteal()
+    local items, guards = FarmModule:GetNearbyItems()
+    
+    -- Evita guards si está activado
+    if _G.autoAvoidGuards then
+        for _, guard in pairs(guards) do
+            if guard.distance < 25 then -- Distancia de peligro
+                -- Huye del guardia
+                local escapeDirection = (hrp.Position - guard.position).Unit * 30
+                hrp.CFrame = hrp.CFrame + escapeDirection
+                return
+            end
+        end
+    end
+    
+    -- Ordena items por prioridad
     table.sort(items, function(a, b)
-        if _G.priorityItems then
-            if a.priority and not b.priority then return true end
-            if not a.priority and b.priority then return false end
+        if _G.priorityRare then
+            if a.isRare and not b.isRare then return true end
+            if not a.isRare and b.isRare then return false end
         end
         return a.distance < b.distance
     end)
     
-    return items
-end
-
-function FarmModule:StealItem(item)
-    local obj = item.object
-    
-    -- Tween suave hacia el item (menos detectable que teleport)
-    local tweenInfo = TweenInfo.new(
-        _G.stealDelay,
-        Enum.EasingStyle.Linear,
-        Enum.EasingDirection.InOut
-    )
-    
-    local tween = TweenService:Create(hrp, tweenInfo, {
-        CFrame = obj:GetPivot() + Vector3.new(0, 3, 0)
-    })
-    
-    tween:Play()
-    tween.Completed:Wait()
-    
-    wait(0.1)
-    
-    -- Intenta recoger el item
-    if obj:FindFirstChild("ClickDetector") then
-        fireclickdetector(obj.ClickDetector)
-    end
-    
-    if obj:FindFirstChild("ProximityPrompt") then
-        fireproximityprompt(obj.ProximityPrompt)
-    end
-    
-    -- Dispara eventos de recogida comunes
-    for _, remote in pairs(ReplicatedStorage:GetDescendants()) do
-        if remote:IsA("RemoteEvent") or remote:IsA("RemoteFunction") then
-            if remote.Name:lower():find("pick") or 
-               remote.Name:lower():find("take") or
-               remote.Name:lower():find("collect") or
-               remote.Name:lower():find("grab") then
-                
+    -- Roba el item más cercano/prioritario
+    if #items > 0 then
+        local target = items[1]
+        
+        -- Movimiento suave hacia el item
+        local tweenInfo = TweenInfo.new(
+            math.min(target.distance / 50, 2), -- Tiempo dinámico según distancia
+            Enum.EasingStyle.Quad,
+            Enum.EasingDirection.Out
+        )
+        
+        local targetCFrame = CFrame.new(target.position + Vector3.new(0, 3, 0))
+        local tween = TweenService:Create(hrp, tweenInfo, {CFrame = targetCFrame})
+        tween:Play()
+        
+        -- Intenta recoger durante el movimiento
+        spawn(function()
+            wait(0.3) -- Pequeño delay antes de recoger
+            
+            -- Métodos de recolección para Brainrot
+            if target.object:FindFirstChild("ClickDetector") then
+                fireclickdetector(target.object.ClickDetector)
+            elseif target.object:FindFirstChild("ProximityPrompt") then
+                fireproximityprompt(target.object.ProximityPrompt)
+            else
+                -- Intenta con remotes comunes de Brainrot
                 pcall(function()
-                    if remote:IsA("RemoteEvent") then
-                        remote:FireServer(obj)
-                    else
-                        remote:InvokeServer(obj)
+                    local remotes = {
+                        "CollectItem",
+                        "PickupItem", 
+                        "GrabItem",
+                        "TakeItem",
+                        "StealItem"
+                    }
+                    
+                    for _, remoteName in pairs(remotes) do
+                        local remote = ReplicatedStorage:FindFirstChild(remoteName)
+                        if remote then
+                            remote:FireServer(target.object)
+                        end
                     end
                 end)
             end
-        end
+        end)
     end
 end
 
-function FarmModule:AutoSell()
-    -- Busca zonas de venta
+function FarmModule:AutoSellBrainrot()
+    -- Busca zonas de venta en Brainrot
     local sellZones = {}
     
     for _, obj in pairs(Workspace:GetDescendants()) do
         if obj.Name:lower():find("sell") or 
            obj.Name:lower():find("cash") or
-           obj.Name:lower():find("deposit") then
+           obj.Name:lower():find("bank") or
+           obj.Name:lower():find("deposit") or
+           obj.Name:lower():find("store") then
+            
             table.insert(sellZones, obj)
         end
     end
     
     if #sellZones > 0 then
-        local closest = sellZones[1]
+        local closestZone = sellZones[1]
         local closestDist = math.huge
         
         for _, zone in pairs(sellZones) do
             local dist = (hrp.Position - zone:GetPivot().Position).Magnitude
             if dist < closestDist then
-                closest = zone
+                closestZone = zone
                 closestDist = dist
             end
         end
         
-        -- Tween a la zona de venta
-        local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Linear)
+        -- Movimiento a la zona de venta
+        local tweenInfo = TweenInfo.new(1.5, Enum.EasingStyle.Quad)
         local tween = TweenService:Create(hrp, tweenInfo, {
-            CFrame = closest:GetPivot()
+            CFrame = closestZone:GetPivot() + Vector3.new(0, 3, 0)
         })
         tween:Play()
         tween.Completed:Wait()
         
-        wait(1)
-        
-        -- Dispara eventos de venta
-        for _, remote in pairs(ReplicatedStorage:GetDescendants()) do
-            if remote:IsA("RemoteEvent") or remote:IsA("RemoteFunction") then
-                if remote.Name:lower():find("sell") or remote.Name:lower():find("cash") then
-                    pcall(function()
-                        if remote:IsA("RemoteEvent") then
-                            remote:FireServer()
-                        else
-                            remote:InvokeServer()
-                        end
-                    end)
+        -- Venta automática
+        wait(0.5)
+        pcall(function()
+            local sellRemotes = {
+                "SellItems",
+                "DepositCash",
+                "ExchangeMoney",
+                "ConvertToMoney"
+            }
+            
+            for _, remoteName in pairs(sellRemotes) do
+                local remote = ReplicatedStorage:FindFirstChild(remoteName)
+                if remote then
+                    remote:FireServer()
+                end
+            end
+        end)
+    end
+end
+
+-- =====================================================
+-- ESP ESPECÍFICO BRAINROT
+-- =====================================================
+local ESPModule = {}
+ESPModule.Objects = {}
+
+function ESPModule:CreateHighlight(obj, color, name)
+    if obj:FindFirstChild("N1Z44R_Highlight") then return end
+    
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "N1Z44R_Highlight"
+    highlight.FillColor = color
+    highlight.OutlineColor = Color3.new(1, 1, 1)
+    highlight.FillTransparency = 0.5
+    highlight.OutlineTransparency = 0
+    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    highlight.Parent = obj
+    
+    -- Billboard con información
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "N1Z44R_ESP"
+    billboard.Size = UDim2.new(0, 200, 0, 50)
+    billboard.StudsOffset = Vector3.new(0, 3, 0)
+    billboard.AlwaysOnTop = true
+    billboard.Parent = obj
+    
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.BackgroundTransparency = 1
+    label.Text = name
+    label.TextColor3 = Color3.new(1, 1, 1)
+    label.TextScaled = true
+    label.Font = Enum.Font.GothamBold
+    label.TextStrokeTransparency = 0
+    label.Parent = billboard
+    
+    -- Actualización de distancia
+    if _G.distanceESP then
+        spawn(function()
+            while obj.Parent and obj:FindFirstChild("N1Z44R_Highlight") do
+                local dist = math.floor((hrp.Position - obj:GetPivot().Position).Magnitude)
+                label.Text = name .. " [" .. dist .. "m]"
+                wait(0.1)
+            end
+        end)
+    end
+    
+    table.insert(ESPModule.Objects, {highlight = highlight, billboard = billboard})
+end
+
+function ESPModule:UpdateESP()
+    ESPModule:ClearAll()
+    
+    if _G.itemESP then
+        local items, _ = FarmModule:GetNearbyItems()
+        for _, item in pairs(items) do
+            local color = item.isRare and Color3.fromRGB(255, 215, 0) or Color3.fromRGB(0, 255, 0)
+            ESPModule:CreateHighlight(item.object, color, item.object.Name)
+        end
+    end
+    
+    if _G.guardESP then
+        for _, obj in pairs(Workspace:GetDescendants()) do
+            if FarmModule:IsGuard(obj) then
+                ESPModule:CreateHighlight(obj, Color3.fromRGB(255, 0, 0), "GUARD")
+            end
+        end
+    end
+    
+    if _G.playerESP then
+        for _, plr in pairs(Players:GetPlayers()) do
+            if plr ~= player and plr.Character then
+                local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
+                if hrp then
+                    ESPModule:CreateHighlight(plr.Character, Color3.fromRGB(0, 100, 255), plr.Name)
                 end
             end
         end
     end
 end
 
--- =====================================================
--- ESP AVANZADO
--- =====================================================
-local ESPModule = {}
-ESPModule.Objects = {}
-
-function ESPModule:CreateESP(obj, color, text, showDistance)
-    if obj:FindFirstChild("N1Z44R_ESP") then return end
-    
-    local billboard = Instance.new("BillboardGui")
-    billboard.Name = "N1Z44R_ESP"
-    billboard.AlwaysOnTop = true
-    billboard.Size = UDim2.new(0, 200, 0, 50)
-    billboard.StudsOffset = Vector3.new(0, 2, 0)
-    billboard.Parent = obj
-    
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(1, 0, 1, 0)
-    frame.BackgroundColor3 = color
-    frame.BackgroundTransparency = 0.5
-    frame.BorderSizePixel = 2
-    frame.BorderColor3 = color
-    frame.Parent = billboard
-    
-    local uicorner = Instance.new("UICorner")
-    uicorner.CornerRadius = UDim.new(0, 8)
-    uicorner.Parent = frame
-    
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, 0, 1, 0)
-    label.BackgroundTransparency = 1
-    label.Text = text
-    label.TextColor3 = Color3.new(1, 1, 1)
-    label.TextScaled = true
-    label.Font = Enum.Font.GothamBold
-    label.TextStrokeTransparency = 0.5
-    label.Parent = frame
-    
-    -- Tracer (línea hacia el objeto)
-    if _G.tracers then
-        local tracer = Drawing.new("Line")
-        tracer.Visible = true
-        tracer.Color = color
-        tracer.Thickness = 2
-        tracer.Transparency = 0.7
-        
-        RunService.RenderStepped:Connect(function()
-            if not obj.Parent or not _G.tracers then
-                tracer:Remove()
-                return
-            end
-            
-            local objPos, onScreen = Workspace.CurrentCamera:WorldToViewportPoint(obj.Position)
-            local screenCenter = Vector2.new(Workspace.CurrentCamera.ViewportSize.X / 2, Workspace.CurrentCamera.ViewportSize.Y)
-            
-            if onScreen then
-                tracer.From = screenCenter
-                tracer.To = Vector2.new(objPos.X, objPos.Y)
-                tracer.Visible = true
-            else
-                tracer.Visible = false
-            end
-        end)
-    end
-    
-    -- Actualiza distancia
-    if showDistance and _G.distanceESP then
-        RunService.Heartbeat:Connect(function()
-            if obj.Parent then
-                local dist = math.floor((hrp.Position - obj.Position).Magnitude)
-                label.Text = text .. " [" .. dist .. "m]"
-            else
-                billboard:Destroy()
-            end
-        end)
-    end
-    
-    table.insert(ESPModule.Objects, billboard)
-end
-
 function ESPModule:ClearAll()
     for _, esp in pairs(ESPModule.Objects) do
-        if esp then esp:Destroy() end
+        if esp.highlight then esp.highlight:Destroy() end
+        if esp.billboard then esp.billboard:Destroy() end
     end
     ESPModule.Objects = {}
 end
 
 -- =====================================================
--- COMBAT AVANZADO
--- =====================================================
-local CombatModule = {}
-
-function CombatModule:KillAura()
-    if not _G.killAuraEnabled then return end
-    
-    for _, target in pairs(Players:GetPlayers()) do
-        if target ~= player and target.Character then
-            local targetHRP = target.Character:FindFirstChild("HumanoidRootPart")
-            local targetHum = target.Character:FindFirstChild("Humanoid")
-            
-            if targetHRP and targetHum and targetHum.Health > 0 then
-                local distance = (hrp.Position - targetHRP.Position).Magnitude
-                
-                if distance <= _G.killAuraRange then
-                    -- Auto equipar tool de combate
-                    local tool = player.Character:FindFirstChildOfClass("Tool")
-                    
-                    if not tool then
-                        for _, item in pairs(player.Backpack:GetChildren()) do
-                            if item:IsA("Tool") then
-                                humanoid:EquipTool(item)
-                                tool = item
-                                break
-                            end
-                        end
-                    end
-                    
-                    if tool then
-                        -- Apunta hacia el enemigo
-                        hrp.CFrame = CFrame.new(hrp.Position, targetHRP.Position)
-                        
-                        -- Activa el tool
-                        tool:Activate()
-                        
-                        wait(0.1)
-                    end
-                end
-            end
-        end
-    end
-end
-
--- =====================================================
--- FLY MEJORADO
+-- SISTEMA DE VUELO MEJORADO
 -- =====================================================
 local FlyModule = {}
-FlyModule.Flying = false
+FlyModule.Enabled = false
 
 function FlyModule:Toggle()
-    FlyModule.Flying = not FlyModule.Flying
+    FlyModule.Enabled = not FlyModule.Enabled
     
-    if FlyModule.Flying then
-        local bodyVel = Instance.new("BodyVelocity")
-        bodyVel.Name = "FlyVelocity"
-        bodyVel.MaxForce = Vector3.new(9e9, 9e9, 9e9)
-        bodyVel.Velocity = Vector3.new(0, 0, 0)
-        bodyVel.Parent = hrp
+    if FlyModule.Enabled then
+        local bodyVelocity = Instance.new("BodyVelocity")
+        bodyVelocity.Name = "N1Z44R_Fly"
+        bodyVelocity.MaxForce = Vector3.new(400000, 400000, 400000)
+        bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+        bodyVelocity.Parent = hrp
         
         local bodyGyro = Instance.new("BodyGyro")
-        bodyGyro.Name = "FlyGyro"
-        bodyGyro.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
-        bodyGyro.P = 9e4
+        bodyGyro.Name = "N1Z44R_FlyGyro"
+        bodyGyro.MaxTorque = Vector3.new(400000, 400000, 400000)
+        bodyGyro.P = 10000
         bodyGyro.Parent = hrp
         
         spawn(function()
-            while FlyModule.Flying and _G.flyEnabled do
+            while FlyModule.Enabled and _G.flyEnabled do
                 local camera = Workspace.CurrentCamera
+                bodyGyro.CFrame = camera.CFrame
+                
                 local moveDirection = Vector3.new(0, 0, 0)
                 
                 if UserInputService:IsKeyDown(Enum.KeyCode.W) then
@@ -517,36 +537,57 @@ function FlyModule:Toggle()
                     moveDirection = moveDirection - Vector3.new(0, 1, 0)
                 end
                 
-                bodyVel.Velocity = moveDirection.Unit * _G.flySpeed
-                bodyGyro.CFrame = camera.CFrame
-                
+                bodyVelocity.Velocity = moveDirection * _G.flySpeed
                 RunService.Heartbeat:Wait()
             end
             
-            if hrp:FindFirstChild("FlyVelocity") then hrp.FlyVelocity:Destroy() end
-            if hrp:FindFirstChild("FlyGyro") then hrp.FlyGyro:Destroy() end
+            if hrp:FindFirstChild("N1Z44R_Fly") then hrp.N1Z44R_Fly:Destroy() end
+            if hrp:FindFirstChild("N1Z44R_FlyGyro") then hrp.N1Z44R_FlyGyro:Destroy() end
         end)
     end
 end
 
 -- =====================================================
--- GUI MODERNA CON ORION LIB
+-- MEJORAS VISUALES
+-- =====================================================
+local VisualModule = {}
+
+function VisualModule:ToggleFullBright()
+    if _G.fullBright then
+        Lighting.Ambient = Color3.new(1, 1, 1)
+        Lighting.Brightness = 2
+        Lighting.GlobalShadows = false
+    else
+        Lighting.Ambient = Color3.new(0.5, 0.5, 0.5)
+        Lighting.Brightness = 1
+        Lighting.GlobalShadows = true
+    end
+end
+
+function VisualModule:ToggleNoFog()
+    if _G.noFog then
+        Lighting.FogEnd = 100000
+    else
+        Lighting.FogEnd = 1000
+    end
+end
+
+-- =====================================================
+-- INTERFAZ ORION LIB MEJORADA
 -- =====================================================
 local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Orion/main/source'))()
 
 local Window = OrionLib:MakeWindow({
-    Name = "N1Z44R v2.0 | Steal a Brainrot",
+    Name = "N1Z44R v2.1 | Steal a Brainrot",
     HidePremium = false,
     SaveConfig = true,
-    ConfigFolder = "N1Z44R_Config",
+    ConfigFolder = "N1Z44R_Brainrot",
     IntroEnabled = true,
-    IntroText = "N1Z44R Loading...",
+    IntroText = "N1Z44R BRAINROT EDITION",
     IntroIcon = "rbxassetid://4483345998"
 })
 
--- =====================================================
--- TAB: AUTO FARM
--- =====================================================
+-- TAB AUTO FARM
 local FarmTab = Window:MakeTab({
     Name = "Auto Farm",
     Icon = "rbxassetid://4483345998",
@@ -554,47 +595,54 @@ local FarmTab = Window:MakeTab({
 })
 
 FarmTab:AddToggle({
-    Name = "Auto Steal Items",
+    Name = "🔄 Auto Steal Items",
     Default = false,
     Callback = function(value)
         _G.autoStealEnabled = value
-        
         spawn(function()
             while _G.autoStealEnabled do
-                local items = FarmModule:GetItems()
-                
-                for _, item in pairs(items) do
-                    if not _G.autoStealEnabled then break end
-                    FarmModule:StealItem(item)
-                    wait(_G.stealDelay)
-                end
-                
-                wait(1)
+                FarmModule:SmartSteal()
+                wait(_G.stealDelay)
             end
         end)
     end
 })
 
 FarmTab:AddToggle({
-    Name = "Auto Sell",
+    Name = "💰 Auto Sell",
     Default = false,
     Callback = function(value)
         _G.autoSellEnabled = value
-        
         spawn(function()
             while _G.autoSellEnabled do
-                FarmModule:AutoSell()
-                wait(5)
+                FarmModule:AutoSellBrainrot()
+                wait(10) -- Vender cada 10 segundos
             end
         end)
     end
 })
 
+FarmTab:AddToggle({
+    Name = "🎯 Priority Rare Items",
+    Default = true,
+    Callback = function(value)
+        _G.priorityRare = value
+    end
+})
+
+FarmTab:AddToggle({
+    Name = "🚷 Auto Avoid Guards",
+    Default = true,
+    Callback = function(value)
+        _G.autoAvoidGuards = value
+    end
+})
+
 FarmTab:AddSlider({
-    Name = "Farm Radius",
-    Min = 20,
+    Name = "📏 Farm Radius",
+    Min = 50,
     Max = 500,
-    Default = 100,
+    Default = 150,
     Color = Color3.fromRGB(255, 0, 0),
     Increment = 10,
     Callback = function(value)
@@ -602,29 +650,7 @@ FarmTab:AddSlider({
     end
 })
 
-FarmTab:AddSlider({
-    Name = "Steal Delay",
-    Min = 0.1,
-    Max = 2,
-    Default = 0.3,
-    Color = Color3.fromRGB(255, 0, 0),
-    Increment = 0.1,
-    Callback = function(value)
-        _G.stealDelay = value
-    end
-})
-
-FarmTab:AddToggle({
-    Name = "Priority Rare Items",
-    Default = true,
-    Callback = function(value)
-        _G.priorityItems = value
-    end
-})
-
--- =====================================================
--- TAB: MOVEMENT
--- =====================================================
+-- TAB MOVEMENT
 local MoveTab = Window:MakeTab({
     Name = "Movement",
     Icon = "rbxassetid://4483345998",
@@ -632,9 +658,9 @@ local MoveTab = Window:MakeTab({
 })
 
 MoveTab:AddSlider({
-    Name = "Walk Speed",
+    Name = "🚶 Walk Speed",
     Min = 16,
-    Max = 500,
+    Max = 200,
     Default = 16,
     Color = Color3.fromRGB(0, 255, 0),
     Increment = 1,
@@ -644,21 +670,8 @@ MoveTab:AddSlider({
     end
 })
 
-MoveTab:AddSlider({
-    Name = "Jump Power",
-    Min = 50,
-    Max = 500,
-    Default = 50,
-    Color = Color3.fromRGB(0, 255, 0),
-    Increment = 10,
-    Callback = function(value)
-        _G.jumpPower = value
-        humanoid.JumpPower = value
-    end
-})
-
 MoveTab:AddToggle({
-    Name = "Fly",
+    Name = "🦅 Fly",
     Default = false,
     Callback = function(value)
         _G.flyEnabled = value
@@ -667,10 +680,10 @@ MoveTab:AddToggle({
 })
 
 MoveTab:AddSlider({
-    Name = "Fly Speed",
-    Min = 10,
+    Name = "⚡ Fly Speed",
+    Min = 50,
     Max = 300,
-    Default = 100,
+    Default = 120,
     Color = Color3.fromRGB(0, 255, 0),
     Increment = 10,
     Callback = function(value)
@@ -679,100 +692,24 @@ MoveTab:AddSlider({
 })
 
 MoveTab:AddToggle({
-    Name = "Infinite Jump",
-    Default = false,
-    Callback = function(value)
-        _G.infiniteJumpEnabled = value
-        
-        if value then
-            local connection
-            connection = UserInputService.JumpRequest:Connect(function()
-                if _G.infiniteJumpEnabled then
-                    humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-                else
-                    connection:Disconnect()
-                end
-            end)
-        end
-    end
-})
-
-MoveTab:AddToggle({
-    Name = "NoClip",
+    Name = "🎯 NoClip",
     Default = false,
     Callback = function(value)
         _G.noClipEnabled = value
-        
-        RunService.Stepped:Connect(function()
-            if _G.noClipEnabled then
+        spawn(function()
+            while _G.noClipEnabled do
                 for _, part in pairs(character:GetDescendants()) do
                     if part:IsA("BasePart") then
                         part.CanCollide = false
                     end
                 end
-            end
-        end)
-    end
-})
-
--- =====================================================
--- TAB: COMBAT
--- =====================================================
-local CombatTab = Window:MakeTab({
-    Name = "Combat",
-    Icon = "rbxassetid://4483345998",
-    PremiumOnly = false
-})
-
-CombatTab:AddToggle({
-    Name = "Kill Aura",
-    Default = false,
-    Callback = function(value)
-        _G.killAuraEnabled = value
-        
-        spawn(function()
-            while _G.killAuraEnabled do
-                CombatModule:KillAura()
                 wait(0.1)
             end
         end)
     end
 })
 
-CombatTab:AddSlider({
-    Name = "Kill Aura Range",
-    Min = 5,
-    Max = 50,
-    Default = 15,
-    Color = Color3.fromRGB(255, 0, 0),
-    Increment = 1,
-    Callback = function(value)
-        _G.killAuraRange = value
-    end
-})
-
-CombatTab:AddToggle({
-    Name = "Anti Ragdoll",
-    Default = true,
-    Callback = function(value)
-        _G.antiRagdoll = value
-        
-        spawn(function()
-            while _G.antiRagdoll do
-                for _, v in pairs(character:GetDescendants()) do
-                    if v:IsA("BallSocketConstraint") or v:IsA("NoCollisionConstraint") then
-                        v:Destroy()
-                    end
-                end
-                wait(0.1)
-            end
-        end)
-    end
-})
-
--- =====================================================
--- TAB: ESP
--- =====================================================
+-- TAB ESP
 local ESPTab = Window:MakeTab({
     Name = "ESP",
     Icon = "rbxassetid://4483345998",
@@ -780,61 +717,42 @@ local ESPTab = Window:MakeTab({
 })
 
 ESPTab:AddToggle({
-    Name = "Player ESP",
-    Default = false,
-    Callback = function(value)
-        _G.playerESP = value
-        
-        if value then
-            for _, plr in pairs(Players:GetPlayers()) do
-                if plr ~= player and plr.Character then
-                    local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
-                    if hrp then
-                        ESPModule:CreateESP(hrp, Color3.fromRGB(255, 0, 0), plr.Name, true)
-                    end
-                end
-            end
-        else
-            ESPModule:ClearAll()
-        end
-    end
-})
-
-ESPTab:AddToggle({
-    Name = "Item ESP",
+    Name = "🎯 Item ESP",
     Default = false,
     Callback = function(value)
         _G.itemESP = value
-        
-        if value then
-            for _, item in pairs(FarmModule:GetItems()) do
-                ESPModule:CreateESP(item.object, Color3.fromRGB(0, 255, 0), "Item", true)
-            end
-        else
-            ESPModule:ClearAll()
-        end
+        ESPModule:UpdateESP()
     end
 })
 
 ESPTab:AddToggle({
-    Name = "Show Distance",
+    Name = "🚨 Guard ESP",
     Default = false,
+    Callback = function(value)
+        _G.guardESP = value
+        ESPModule:UpdateESP()
+    end
+})
+
+ESPTab:AddToggle({
+    Name = "👥 Player ESP",
+    Default = false,
+    Callback = function(value)
+        _G.playerESP = value
+        ESPModule:UpdateESP()
+    end
+})
+
+ESPTab:AddToggle({
+    Name = "📏 Show Distance",
+    Default = true,
     Callback = function(value)
         _G.distanceESP = value
+        ESPModule:UpdateESP()
     end
 })
 
-ESPTab:AddToggle({
-    Name = "Tracers",
-    Default = false,
-    Callback = function(value)
-        _G.tracers = value
-    end
-})
-
--- =====================================================
--- TAB: DESYNC
--- =====================================================
+-- TAB DESYNC
 local DesyncTab = Window:MakeTab({
     Name = "Desync",
     Icon = "rbxassetid://4483345998",
@@ -842,7 +760,7 @@ local DesyncTab = Window:MakeTab({
 })
 
 DesyncTab:AddToggle({
-    Name = "Enable Desync",
+    Name = "🌀 Enable Desync",
     Default = false,
     Callback = function(value)
         _G.desyncEnabled = value
@@ -852,47 +770,28 @@ DesyncTab:AddToggle({
     end
 })
 
-DesyncTab:AddSlider({
-    Name = "Desync Offset X",
-    Min = -50,
-    Max = 50,
-    Default = 10,
-    Color = Color3.fromRGB(255, 255, 0),
-    Increment = 1,
-    Callback = function(value)
-        _G.desyncOffset = Vector3.new(value, _G.desyncOffset.Y, _G.desyncOffset.Z)
-    end
-})
-
-DesyncTab:AddSlider({
-    Name = "Desync Offset Z",
-    Min = -50,
-    Max = 50,
-    Default = 10,
-    Color = Color3.fromRGB(255, 255, 0),
-    Increment = 1,
-    Callback = function(value)
-        _G.desyncOffset = Vector3.new(_G.desyncOffset.X, _G.desyncOffset.Y, value)
-    end
-})
-
--- =====================================================
--- TAB: MISC
--- =====================================================
-local MiscTab = Window:MakeTab({
-    Name = "Misc",
+-- TAB VISUAL
+local VisualTab = Window:MakeTab({
+    Name = "Visual",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
-MiscTab:AddLabel("Anti-Detection: ACTIVE")
-MiscTab:AddLabel("Anti-Kick: ACTIVE")
-MiscTab:AddLabel("Version: 2.0")
+VisualTab:AddToggle({
+    Name = "💡 Full Bright",
+    Default = false,
+    Callback = function(value)
+        _G.fullBright = value
+        VisualModule:ToggleFullBright()
+    end
+})
 
-MiscTab:AddButton({
-    Name = "Destroy GUI",
-    Callback = function()
-        OrionLib:Destroy()
+VisualTab:AddToggle({
+    Name = "🌫️ No Fog",
+    Default = false,
+    Callback = function(value)
+        _G.noFog = value
+        VisualModule:ToggleNoFog()
     end
 })
 
@@ -901,13 +800,27 @@ MiscTab:AddButton({
 -- =====================================================
 OrionLib:Init()
 
+-- Actualización constante del ESP
+spawn(function()
+    while true do
+        if _G.itemESP or _G.guardESP or _G.playerESP then
+            ESPModule:UpdateESP()
+        end
+        wait(2)
+    end
+end)
+
+-- Notificación de carga
 game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "N1Z44R v2.0";
-    Text = "Ultra Advanced Loaded!";
-    Duration = 5;
+    Title = "N1Z44R v2.1",
+    Text = "Brainrot Edition Loaded!",
+    Duration = 5,
+    Icon = "rbxassetid://4483345998"
 })
 
-print("[N1Z44R] v2.0 Ultra Advanced cargado exitosamente")
-print("[N1Z44R] Anti-detección: ACTIVA")
-print("[N1Z44R] Desync real: DISPONIBLE")
-print("[N1Z44R] Auto farm inteligente: ACTIVO")
+print("==========================================")
+print("N1Z44R v2.1 - BRAINROT EDITION")
+print("Auto Farm: Optimizado para Steal a Brainrot")
+print("ESP: Items, Guards, Players")
+print("Desync: Sistema avanzado activo")
+print("==========================================")
